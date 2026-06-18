@@ -84,4 +84,87 @@
         #message {
             margin-top: 1.5rem;
             font-weight: bold;
-            font-size: 1
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success { background-color: var(--success-bg); color: var(--success-color); border: 1px solid #b7e4c7; }
+        .error { background-color: var(--error-bg); color: var(--error-color); border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>تسجيل الحضور الشخصي</h2>
+    <div id="form-container">
+        <label for="studentName">الرجاء إدخال اسمك الثلاثي:</label>
+        <input type="text" id="studentName" placeholder="اكتب اسمك هنا..." autocomplete="off">
+        <button id="submitBtn" onclick="submitAttendance()">تسجيل حضور الآن</button>
+    </div>
+    <div id="message"></div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const timestamp = urlParams.get('ts');
+
+    // تم وضع الرابط الجديد والمحدث الخاص بك هنا بنجاح
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSVavlpTRmfVnj33bgEa9X14MAMPlUl69UO_UBfJrk4HpRhnWNyIhQ1-roEPxPNLrE/exec";
+
+    function showMessage(text, type) {
+        const msgDiv = document.getElementById("message");
+        msgDiv.innerText = text;
+        msgDiv.className = type;
+        msgDiv.style.display = "block";
+    }
+
+    async function submitAttendance() {
+        const nameInput = document.getElementById("studentName");
+        const studentName = nameInput.value.trim();
+        const btn = document.getElementById("submitBtn");
+
+        if (!studentName) {
+            showMessage("عذراً سير، يرجى كتابة الاسم أولاً!", "error");
+            return;
+        }
+
+        if (!token || !timestamp) {
+            showMessage("خطأ: رابط الـ QR غير مكتمل أو تم الدخول بشكل خاطئ!", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        showMessage("جاري التحقق من التوقيت وتسجيل الحضور...", "success");
+
+        const payload = {
+            name: studentName,
+            token: token,
+            timestamp: timestamp
+        };
+
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            // لأن الطلب يتم بنظام no-cors، سنظهر رسالة نجاح مبدئية ونطلب التحقق من الشيت
+            showMessage("تم إرسال الطلب بنجاح! تحقق من السيرفر وجدول البيانات الآن يا سير.", "success");
+            nameInput.value = "";
+            btn.disabled = false;
+
+        } catch (error) {
+            console.error("Error:", error);
+            showMessage("فشل الاتصال بالسيرفر، يرجى التحقق من جودة الإنترنت.", "error");
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
