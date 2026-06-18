@@ -6,10 +6,10 @@
     <title>تسجيل حضور الطالب</title>
     <style>
         :root {
-            --bg-color: #ffffff; /* تم التغيير للأبيض */
-            --card-bg: #f8f9fa; /* خلفية الكارت رمادي فاتح جداً */
+            --bg-color: #ffffff;
+            --card-bg: #f8f9fa;
             --primary-neon: #a64bf4;
-            --text-color: #2b2d42; /* النص داكن */
+            --text-color: #2b2d42;
             --success-color: #1b4332;
             --success-bg: #d8f3dc;
             --error-color: #721c24;
@@ -110,8 +110,8 @@
     const token = urlParams.get('token');
     const timestamp = urlParams.get('ts');
 
-    // ضع رابط الـ Web App URL الخاص بجوجل سكريبت هنا:
-    const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL";
+    // تم وضع الرابط الخاص بك هنا بنجاح يا سير
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwN66SaYrkYwDsNwpmJRjCMVaLQSC8HvPQie8gARh_FxCtcmZdTQ6-WxijZNR4hmQ5-/exec";
 
     function showMessage(text, type) {
         const msgDiv = document.getElementById("message");
