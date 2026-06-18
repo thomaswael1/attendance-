@@ -8,11 +8,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root {
-            --bg-color: #ffffff; /* تم التغيير للأبيض */
+            --bg-color: #ffffff; /* الخلفية بيضاء */
             --card-bg: #f8f9fa; /* خلفية الكارت رمادي فاتح جداً */
-            --primary-neon: #a64bf4;
-            --text-color: #2b2d42; /* تم تغيير النص للون داكن ليظهر بوضوح */
-            --accent-cyan: #00b4d8; /* تعديل الأزرق ليكون واضحاً على الخلفية البيضاء */
+            --primary-neon: #a64bf4; /* بنفسجي نيون */
+            --text-color: #2b2d42; /* النص داكن */
+            --accent-cyan: #00b4d8; /* أزرق سماوي واضح */
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -100,8 +100,11 @@
 </div>
 
 <script>
+    // يجب أن تكون نفس الكلمة السرية الموجودة في Google Script تماماً لضمان المطابقة
     const SECRET_KEY = "MY_SUPER_SECRET_KEY_123"; 
-    const STUDENT_PAGE_URL = "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/student.html";
+    
+    // تم ربط رابط صفحة الطالب الخاص بك هنا بنجاح يا سير
+    const STUDENT_PAGE_URL = "https://thomaswael1.github.io/attendance-/STUDENT.UI.html";
 
     let timeLeft = 15;
     let qrContainer = document.getElementById("qrcode");
@@ -109,13 +112,20 @@
 
     function generateDynamicQR() {
         const timestamp = new Date().getTime();
+        
+        // توليد التوقيع الرقمي (Token) باستخدام SHA-256 لمنع الغش والتلاعب بالوقت
         const token = CryptoJS.SHA256(timestamp + SECRET_KEY).toString(CryptoJS.enc.Hex);
+        
+        // بناء الرابط النهائي الذي سيقرأه موبايل الطالب ويحتوي على البيانات التوثيقية
         const finalUrl = `${STUDENT_PAGE_URL}?token=${token}&ts=${timestamp}`;
+        
+        // تحديث الـ QR Code
         qrcode.makeCode(finalUrl);
     }
 
     function startTimer() {
-        generateDynamicQR();
+        generateDynamicQR(); // توليد أول QR فوراً عند التحميل
+        
         setInterval(() => {
             timeLeft--;
             document.getElementById("countdown").innerText = timeLeft;
@@ -123,7 +133,7 @@
             
             if (timeLeft <= 0) {
                 timeLeft = 15;
-                generateDynamicQR();
+                generateDynamicQR(); // توليد QR جديد تماماً عند انتهاء الـ 15 ثانية
             }
         }, 1000);
     }
