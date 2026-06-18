@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل حضور الطالب</title>
+    <style>
+        :root {
+            --bg-color: #ffffff; /* تم التغيير للأبيض */
+            --card-bg: #f8f9fa; /* خلفية الكارت رمادي فاتح جداً */
+            --primary-neon: #a64bf4;
+            --text-color: #2b2d42; /* النص داكن */
+            --success-color: #1b4332;
+            --success-bg: #d8f3dc;
+            --error-color: #721c24;
+            --error-bg: #f8d7da;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(166, 75, 244, 0.12);
+            border: 1px solid rgba(166, 75, 244, 0.15);
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #000;
+            font-size: 1rem;
+            text-align: center;
+            transition: 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary-neon);
+            outline: none;
+            box-shadow: 0 0 8px rgba(166, 75, 244, 0.3);
+        }
+        button {
+            background: linear-gradient(135deg, var(--primary-neon), #833ab4);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(166, 75, 244, 0.2);
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        #message {
+            margin-top: 1.5rem;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success { background-color: var(--success-bg); color: var(--success-color); border: 1px solid #b7e4c7; }
+        .error { background-color: var(--error-bg); color: var(--error-color); border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>تسجيل الحضور الشخصي</h2>
+    <div id="form-container">
+        <label for="studentName">الرجاء إدخال اسمك الثلاثي:</label>
+        <input type="text" id="studentName" placeholder="اكتب اسمك هنا..." autocomplete="off">
+        <button id="submitBtn" onclick="submitAttendance()">تسجيل حضور الآن</button>
+    </div>
+    <div id="message"></div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const timestamp = urlParams.get('ts');
+
+    // ضع رابط الـ Web App URL الخاص بجوجل سكريبت هنا:
+    const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL";
+
+    function showMessage(text, type) {
+        const msgDiv = document.getElementById("message");
+        msgDiv.innerText = text;
+        msgDiv.className = type;
+        msgDiv.style.display = "block";
+    }
+
+    async function submitAttendance() {
+        const nameInput = document.getElementById("studentName");
+        const studentName = nameInput.value.trim();
+        const btn = document.getElementById("submitBtn");
+
+        if (!studentName) {
+            showMessage("عذراً سير، يرجى كتابة الاسم أولاً!", "error");
+            return;
+        }
+
+        if (!token || !timestamp) {
+            showMessage("خطأ: رابط الـ QR غير مكتمل أو تم الدخول بشكل خاطئ!", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        showMessage("جاري التحقق من التوقيت وتسجيل الحضور...", "success");
+
+        const payload = {
+            name: studentName,
+            token: token,
+            timestamp: timestamp
+        };
+
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            showMessage("تم إرسال الطلب! تفقد جدول البيانات للتأكد من قيد الاسم يا سير.", "success");
+            nameInput.value = "";
+
+        } catch (error) {
+            console.error("Error:", error);
+            showMessage("فشل الاتصال بالسيرفر، يرجى التحقق من جودة الإنترنت.", "error");
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
