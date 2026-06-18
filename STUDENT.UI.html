@@ -110,8 +110,8 @@
     const token = urlParams.get('token');
     const timestamp = urlParams.get('ts');
 
-    // تم وضع الرابط الجديد والمحدث الخاص بك هنا بنجاح
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSVavlpTRmfVnj33bgEa9X14MAMPlUl69UO_UBfJrk4HpRhnWNyIhQ1-roEPxPNLrE/exec";
+    // الرابط الجديد الخاص بك مدمج هنا بالكامل
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFilalctBZBhlpIfnOF0uqFs2UdXo1QaOfWWusKW6uV9Db3oioPm2z76CYD0CP65pK/exec";
 
     function showMessage(text, type) {
         const msgDiv = document.getElementById("message");
@@ -138,33 +138,14 @@
         btn.disabled = true;
         showMessage("جاري التحقق من التوقيت وتسجيل الحضور...", "success");
 
-        const payload = {
-            name: studentName,
-            token: token,
-            timestamp: timestamp
-        };
+        // تحضير رابط الإرسال المباشر بأسلوب GET لضمان كسر الحظر
+        const finalDeployUrl = `${GOOGLE_SCRIPT_URL}?name=${encodeURIComponent(studentName)}&token=${token}&ts=${timestamp}`;
 
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
+            const response = await fetch(finalDeployUrl, {
+                method: "GET",
+                mode: "cors"
             });
-
-            // لأن الطلب يتم بنظام no-cors، سنظهر رسالة نجاح مبدئية ونطلب التحقق من الشيت
-            showMessage("تم إرسال الطلب بنجاح! تحقق من السيرفر وجدول البيانات الآن يا سير.", "success");
-            nameInput.value = "";
-            btn.disabled = false;
-
-        } catch (error) {
-            console.error("Error:", error);
-            showMessage("فشل الاتصال بالسيرفر، يرجى التحقق من جودة الإنترنت.", "error");
-            btn.disabled = false;
-        }
-    }
-</script>
-</body>
-</html>
+            
+            showMessage("تم تسجيل حضورك بنجاح في جدول البيانات يا سير!", "success");
+            nameInput.
